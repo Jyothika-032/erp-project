@@ -1,7 +1,16 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 :root {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light;
+  color: #111827;
+  background-color: #f9fafb;
+
+  /* Amaljith's Colors */
   --blue-950: #0a1628;
   --blue-900: #1e3a8a;
   --blue-800: #1e40af;
@@ -10,40 +19,68 @@
   --blue-400: #60a5fa;
   --blue-100: #dbeafe;
   --blue-50: #eff6ff;
+  
+  /* Ashvel's Variables */
+  --primary: #2563eb;
+  --primary-glow: rgba(37, 99, 235, 0.4);
+  --bg-main: #f8fafc;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+@theme {
+  --font-sans: 'Inter', system-ui, -apple-system, Helvetica, Arial, sans-serif;
+  --color-primary: #2563eb;
+  --color-primary-dark: #1d4ed8;
+  --color-primary-light: #dbeafe;
+  --color-sidebar: #0f172a;
+  --color-background: #f8fafc;
+  
+  --shadow-premium: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+}
+
+@layer base {
+  html, body, input, select, textarea, button {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
 }
 
 body {
-  font-family: 'Inter', system-ui, sans-serif;
-  background: #f1f5f9;
-  color: #1e293b;
-  -webkit-font-smoothing: antialiased;
+  margin: 0;
+  background-color: var(--bg-main);
+  font-family: 'Inter', sans-serif;
+  @apply text-slate-900;
 }
 
-/* Scrollbar */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #93c5fd;
+  background: rgba(0, 0, 0, 0.1);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3b82f6;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* Sidebar Specific Scrollbar */
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* Smooth transitions globally */
@@ -55,63 +92,24 @@ textarea {
   transition: all 0.18s ease;
 }
 
-/* Focus ring */
-input:focus,
-select:focus,
-textarea:focus,
-button:focus-visible {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-}
-
 /* Animations */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px) scale(0.98);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  from { opacity: 0; transform: translateY(-10px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-
-  100% {
-    background-position: 200% 0;
-  }
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
-.page-enter {
-  animation: fadeIn 0.3s ease;
-}
-
-.modal-enter {
-  animation: slideIn 0.25s ease;
-}
+.page-enter { animation: fadeIn 0.3s ease; }
+.modal-enter { animation: slideIn 0.25s ease; }
 
 .shimmer {
   background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
@@ -119,13 +117,64 @@ button:focus-visible {
   animation: shimmer 1.4s infinite;
 }
 
+/* Ashvel's Component Styles (to keep attendance working) */
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 2rem;
+}
+
+.attendance-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+}
+
+.attendance-table tr td {
+  padding: 1rem;
+  background: white;
+  border-top: 1px solid #f1f5f9;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.attendance-table tr td:first-child { border-left: 1px solid #f1f5f9; border-radius: 12px 0 0 12px; }
+.attendance-table tr td:last-child { border-right: 1px solid #f1f5f9; border-radius: 0 12px 12px 0; }
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-badge.present { background: #dcfce7; color: #166534; }
+.status-badge.absent { background: #fee2e2; color: #991b1b; }
+
+.action-dot {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid #e2e8f0; cursor: pointer;
+  font-size: 10px; font-weight: 800;
+}
+
+.action-dot.active-p { background: #22c55e; color: white; border-color: #22c55e; }
+.action-dot.active-a { background: #ef4444; color: white; border-color: #ef4444; }
+
+/* Filter Bar */
+.filter-bar {
+  display: flex; gap: 1rem;
+  background: white; padding: 1.25rem;
+  border-radius: 16px; border: 1px solid #f1f5f9;
+  margin-bottom: 1.5rem;
+}
+
+.filter-group { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+.filter-group label { font-size: 10px; font-weight: 800; text-transform: uppercase; color: #64748b; }
+.filter-group select, .filter-group input { padding: 8px 12px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 13px; }
+
 /* Print styles */
 @media print {
-  .no-print {
-    display: none !important;
-  }
-
-  body {
-    background: white;
-  }
+  .no-print { display: none !important; }
+  body { background: white; }
 }

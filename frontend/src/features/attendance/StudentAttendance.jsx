@@ -1,0 +1,1 @@
+export const StudentAttendance = () => <div className='p-8'>Student Attendance Placeholder</div>;

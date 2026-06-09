@@ -1,0 +1,1 @@
+export const Reports = () => <div className='p-8'>Reports Placeholder</div>;

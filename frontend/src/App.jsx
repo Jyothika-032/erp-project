@@ -1,47 +1,30 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
-import Layout from './components/layout/Layout';
-import Payments from './pages/finance/Payments';
-import FeeStructure from './pages/finance/FeeStructure';
-import Certificates from './pages/finance/Certificates';
-import TransferCertificate from './pages/finance/TransferCertificate';
-import './index.css';
+import React, { useState } from "react";
+import AttendancePage from "./features/attendance/AttendancePage";
+import TeacherPage from "./features/teachers/TeacherPage";
+import CommunicationLogsPage from "./features/communication/CommunicationLogsPage";
 
-export default function App() {
+
+function App() {
+  const [view, setView] = useState("attendance");
+
   return (
-    <BrowserRouter>
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          style: { borderRadius: '10px', fontSize: '14px' },
-          success: { iconTheme: { primary: '#1d4ed8', secondary: '#fff' } },
-        }}
-      />
-      <Routes>
-        {/* Redirect root to finance */}
-        <Route path="/" element={<Navigate to="/finance/payments" replace />} />
-
-        {/* Finance Module */}
-        <Route
-          path="/finance/payments"
-          element={<Layout><Payments /></Layout>}
-        />
-        <Route
-          path="/finance/fee-structure"
-          element={<Layout><FeeStructure /></Layout>}
-        />
-        <Route
-          path="/finance/certificates"
-          element={<Layout><Certificates /></Layout>}
-        />
-        <Route
-          path="/finance/transfer-certificate"
-          element={<Layout><TransferCertificate /></Layout>}
-        />
-
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/finance/payments" replace />} />
-      </Routes>
-    </BrowserRouter>
+    <div className="app-container">
+      <nav className="navbar">
+        <div className="logo">ATTENDANCE REPORT</div>
+        <div className="nav-links">
+          <button onClick={() => setView("attendance")} className={view === "attendance" ? "active" : ""}>Attendance</button>
+          <button onClick={() => setView("staff-management")} className={view === "staff-management" ? "active" : ""}>Staff Management</button>
+          <button onClick={() => setView("communication-logs")} className={view === "communication-logs" ? "active" : ""}>Communication Logs</button>
+        </div>
+      </nav>
+      <main className="app-main">
+        {view === "attendance" && <AttendancePage />}
+        {view === "staff-management" && <TeacherPage />}
+        {view === "communication-logs" && <CommunicationLogsPage />}
+      </main>
+    </div>
   );
 }
+
+
+export default App;

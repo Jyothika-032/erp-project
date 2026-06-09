@@ -1,56 +1,82 @@
 const { Router } = require('express');
-const pool = require('../db');
+const { sequelize } = require('../config/database');
+const { QueryTypes } = require('sequelize');
 const router = Router();
 
 // GET /api/fee-structure?institution_id=1
 router.get('/', async (req, res, next) => {
     try {
-        const { institution_id, search, course_id } = req.query;
-        let q = 'SELECT * FROM fee_structure WHERE institution_id = $1';
-        const params = [institution_id || 1];
-        let idx = 2;
+        const { institution_id, search } = req.query;
+        const parsedId = parseInt(institution_id, 10);
+        // Join with course table to get course_name
+        let q = `
+            SELECT fs.*, c.course_name 
+            FROM fee_structure fs
+            LEFT JOIN course c ON fs.course_id = c.course_id
+            WHERE fs.institution_id = :institution_id
+        `;
+        const replacements = { institution_id: isNaN(parsedId) ? 1 : parsedId };
 
-        if (course_id) { q += ` AND course_id = $${idx++}`; params.push(course_id); }
-        if (search) { q += ` AND (course_id ILIKE $${idx} OR course_name ILIKE $${idx} OR academic_year ILIKE $${idx})`; params.push(`%${search}%`); idx++; }
+        if (search) { 
+            q += ' AND (c.course_name ILIKE :search OR fs.status ILIKE :search)'; 
+            replacements.search = `%${search}%`; 
+        }
 
-        q += ' ORDER BY course_id, fee_type';
-        const { rows } = await pool.query(q, params);
-        res.json({ data: rows });
+        q += ' ORDER BY fs.fee_id DESC';
+        const rows = await sequelize.query(q, { replacements, type: QueryTypes.SELECT });
+        res.json({ success: true, data: rows });
     } catch (err) { next(err); }
 });
 
 // POST /api/fee-structure
 router.post('/', async (req, res, next) => {
     try {
-        const { course_id, course_name, institution_id, fee_type, amount, due_date, academic_year } = req.body;
-        const { rows } = await pool.query(
-            `INSERT INTO fee_structure (course_id, course_name, institution_id, fee_type, amount, due_date, academic_year)
-       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
-            [course_id, course_name, institution_id, fee_type || 'tuition', amount, due_date, academic_year]
+        const { course_id, institution_id, total_amount, tuition_fee, admission_fee, exam_fee, other_fee, duration_months, status } = req.body;
+        const [result] = await sequelize.query(
+            `INSERT INTO fee_structure (course_id, institution_id, total_amount, tuition_fee, admission_fee, exam_fee, other_fee, duration_months, status)
+             VALUES (:course_id, :institution_id, :total_amount, :tuition_fee, :admission_fee, :exam_fee, :other_fee, :duration_months, :status) RETURNING *`,
+            {
+                replacements: { course_id, institution_id, total_amount, tuition_fee, admission_fee, exam_fee, other_fee, duration_months, status: status || 'active' },
+                type: QueryTypes.INSERT
+            }
         );
-        res.status(201).json(rows[0]);
+        res.status(201).json({ success: true, data: result[0] });
     } catch (err) { next(err); }
 });
 
 // PUT /api/fee-structure/:id
 router.put('/:id', async (req, res, next) => {
     try {
-        const { course_id, course_name, fee_type, amount, due_date, academic_year } = req.body;
-        const { rows } = await pool.query(
-            `UPDATE fee_structure SET course_id=$1, course_name=$2, fee_type=$3, amount=$4, due_date=$5, academic_year=$6 WHERE id=$7 RETURNING *`,
-            [course_id, course_name, fee_type, amount, due_date, academic_year, req.params.id]
+        const { course_id, total_amount, tuition_fee, admission_fee, exam_fee, other_fee, duration_months, status } = req.body;
+        const [rows] = await sequelize.query(
+            `UPDATE fee_structure SET 
+                course_id=:course_id, 
+                total_amount=:total_amount, 
+                tuition_fee=:tuition_fee, 
+                admission_fee=:admission_fee, 
+                exam_fee=:exam_fee, 
+                other_fee=:other_fee, 
+                duration_months=:duration_months, 
+                status=:status 
+             WHERE fee_id=:id RETURNING *`,
+            {
+                replacements: { course_id, total_amount, tuition_fee, admission_fee, exam_fee, other_fee, duration_months, status, id: req.params.id },
+                type: QueryTypes.UPDATE
+            }
         );
         if (!rows.length) return res.status(404).json({ error: 'Fee structure not found' });
-        res.json(rows[0]);
+        res.json({ success: true, data: rows[0] });
     } catch (err) { next(err); }
 });
 
 // DELETE /api/fee-structure/:id
 router.delete('/:id', async (req, res, next) => {
     try {
-        const { rowCount } = await pool.query('DELETE FROM fee_structure WHERE id = $1', [req.params.id]);
-        if (!rowCount) return res.status(404).json({ error: 'Fee structure not found' });
-        res.json({ message: 'Deleted successfully' });
+        await sequelize.query('DELETE FROM fee_structure WHERE fee_id = :id', {
+            replacements: { id: req.params.id },
+            type: QueryTypes.DELETE
+        });
+        res.json({ success: true, message: 'Deleted successfully' });
     } catch (err) { next(err); }
 });
 

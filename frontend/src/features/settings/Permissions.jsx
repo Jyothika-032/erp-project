@@ -1,0 +1,1 @@
+export const Permissions = () => <div className='p-8'>Permissions Placeholder</div>;

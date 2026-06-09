@@ -1,0 +1,1 @@
+export const Certificates = () => <div className='p-8'>Certificates Placeholder</div>;

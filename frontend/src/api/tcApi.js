@@ -10,3 +10,9 @@ export const createTransferCertificate = (data) =>
 
 export const updateTcStatus = (id, status) =>
     api.put(`/tc/${id}`, { status });
+
+export const updateTc = (id, data) =>
+    api.put(`/tc/${id}`, data);
+
+export const deleteTc = (id) =>
+    api.delete(`/tc/${id}`);

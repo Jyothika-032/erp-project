@@ -1,0 +1,1 @@
+export const MergeLog = () => <div className='p-8'>Institution Merge Log Placeholder</div>;

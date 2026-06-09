@@ -1,0 +1,1 @@
+export const CommunicationLog = () => <div className='p-8'>Communication Log Placeholder</div>;

@@ -1,0 +1,1 @@
+export const TC = () => <div className='p-8'>Transfer Certificate (TC) Placeholder</div>;
